@@ -3,8 +3,7 @@
 #include<iostream>
 using color = glm::vec3;
 using point = glm::vec3;
-using dpoint = glm::highp_dvec3;
-
+using dpoint = glm::dvec3;
 // Constants
 inline constexpr auto SCR_ASPECT_RATIO = 16.0 / 9.0;
 inline constexpr unsigned int SCR_WIDTH = 720;
