@@ -18,10 +18,12 @@ public:
 
 	ray getRay(int x, int y)
 	{
-		//origin calncels out in dir
-		return ray(origin,origin-
+		//origin calncels out
+		return ray(origin,
+			
 			- point(viewport_width / 2, viewport_height / 2, focalLength)
-			+ point(double(x) / (SCR_WIDTH - 1.0) * viewport_width, double(y) / (SCR_HEIGHT - 1.0) * viewport_height, 0)-origin);
+			+ point(double(x) / (SCR_WIDTH - 1.0) * viewport_width, double(y) / (SCR_HEIGHT - 1.0) * viewport_height, 0)
+			  );
 	}
 
 };

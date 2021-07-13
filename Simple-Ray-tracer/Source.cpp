@@ -11,13 +11,14 @@
 
 
 //exports file image , encompasses pixel loop
-void render(Camera&);
-//shoots ray and get backs the color of the object it hits
+void render(Camera&); 
+
+//shoots ray and gets back the color of the object it hits
 color shoot_Ray(const ray&);
 
 int main()
 {
-	Camera camera(point(0, 0, 0), 400.0, 1.0);
+	Camera camera(point(0, 0, 0), 2.0, 1.0);
 	render(camera);
 	return 0;
 }
