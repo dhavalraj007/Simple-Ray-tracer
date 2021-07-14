@@ -56,7 +56,7 @@ double hit_sphere(const ray& r,dpoint center, double radii)
 	double a = dot(r.dir, r.dir);
 	double half_b = dot(r.dir,oc);
 	double c = dot(oc, oc) - radii * radii;
-	double D = half_b * half_b - 4 * a * c;
+	double D = half_b * half_b -  a * c;
 	double t = (-half_b - sqrt(D)) / a;
 	if (D < 0)
 		return -1;
