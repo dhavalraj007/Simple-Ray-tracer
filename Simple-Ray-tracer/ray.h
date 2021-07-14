@@ -6,9 +6,9 @@ class ray
 {
 public:
 	dpoint orig;
-	glm::dvec3 dir;
+	dvec3 dir;
 	
 	ray() = default;
-	ray(point origin,glm::dvec3 direction):orig(origin),dir(direction){}
-	point at(double t) { return orig + t * dir; };
+	ray(dpoint origin,dvec3 direction):orig(origin),dir(direction){}
+	dpoint at(double t) const { return orig + t * dir; };
 };

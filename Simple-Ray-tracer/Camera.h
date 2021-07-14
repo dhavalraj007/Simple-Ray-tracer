@@ -10,8 +10,8 @@ private:
 	double viewport_height;
 	double focalLength;
 public:
-	point origin;
-	Camera(const point& orig, double vp_width, double fLength):origin(orig),
+	dpoint origin;
+	Camera(const dpoint& orig, double vp_width, double fLength):origin(orig),
 		viewport_width(vp_width),
 		viewport_height(vp_width/ SCR_ASPECT_RATIO ),
 		focalLength(fLength){}
@@ -21,8 +21,8 @@ public:
 		//origin calncels out
 		return ray(origin,
 			
-			- point(viewport_width / 2, viewport_height / 2, focalLength)
-			+ point(double(x) / (SCR_WIDTH - 1.0) * viewport_width, double(y) / (SCR_HEIGHT - 1.0) * viewport_height, 0)
+			- dpoint(viewport_width / 2, viewport_height / 2, focalLength)
+			+ dpoint(double(x) / (SCR_WIDTH - 1.0) * viewport_width, double(y) / (SCR_HEIGHT - 1.0) * viewport_height, 0)
 			  );
 	}
 

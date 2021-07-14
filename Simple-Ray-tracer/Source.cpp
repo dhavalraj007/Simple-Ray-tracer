@@ -1,4 +1,5 @@
 #include<iostream>
+#include<chrono>
 
 #include"stb_image.h"
 #include"stb_image_write.h"
@@ -18,8 +19,12 @@ color shoot_Ray(const ray&);
 
 int main()
 {
-	Camera camera(point(0, 0, 0), 2.0, 1.0);
+	Camera camera(dpoint(0, 0, 0), 2.0, 1.0);
+	auto start = std::chrono::high_resolution_clock::now();
 	render(camera);
+	auto stop = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+	std::cout << "render took " << duration << " millieseconds\n";
 	return 0;
 }
 
@@ -44,24 +49,31 @@ void render(Camera& camera)
 
 }
 
-bool hit_sphere(const ray& r,dpoint center, double radii)
+double hit_sphere(const ray& r,dpoint center, double radii)
 {
 	//t2(b*b) + 2*t*b*(A-C) + (A-C)*(A-C) - r*r = 0
-	glm::dvec3 oc = r.orig - center;
-	double a = glm::dot(r.dir, r.dir);
-	double b = glm::dot(r.dir,oc) * 2.0;
-	double c = glm::dot(oc, oc) - radii * radii;
-	double D = b * b - 4 * a * c;
-	return D > 0;
+	dvec3 oc = r.orig - center;
+	double a = dot(r.dir, r.dir);
+	double half_b = dot(r.dir,oc);
+	double c = dot(oc, oc) - radii * radii;
+	double D = half_b * half_b - 4 * a * c;
+	double t = (-half_b - sqrt(D)) / a;
+	if (D < 0)
+		return -1;
+	else
+		return t;
+
 }
 
 
 color shoot_Ray(const ray& r)
 {
-	if (hit_sphere(r, { 0,0,-1 }, .3))
+	double t = hit_sphere(r, { 0,0,-1 }, .3);
+	if (t>0)
 	{
-		return color(1.0, 0.0, 0.0);
+		dpoint hitPoint = r.at(t);
+		return 0.5 * (normalize(hitPoint - dvec3(0, 0, -1)) + dvec3(1.0));
 	}
-	double a{ 0.5 * (glm::normalize(r.dir).y + 1.0) };
-	return (1 - a) * glm::dvec3(1.0, 1.0, 1.0) + (a)*glm::dvec3(0.5, 0.7, 1.0);
+	double a{ 0.5 * (normalize(r.dir).y + 1.0) };
+	return (1 - a) * dvec3(1.0, 1.0, 1.0) + (a)*dvec3(0.5, 0.7, 1.0);
 }

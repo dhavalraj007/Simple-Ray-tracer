@@ -1,9 +1,10 @@
 #pragma once
 #include"glm/vec3.hpp"
 #include<iostream>
-using color = glm::vec3;
-using point = glm::vec3;
-using dpoint = glm::dvec3;
+using namespace glm;
+using color = vec3;
+using point = vec3;
+using dpoint = dvec3;
 // Constants
 inline constexpr auto SCR_ASPECT_RATIO = 16.0 / 9.0;
 inline constexpr unsigned int SCR_WIDTH = 720;
@@ -21,4 +22,11 @@ void writeColor(unsigned char* const image,unsigned int &index,const color& c)
 	image[index++] = static_cast<int>(255.99 * c.r);
 	image[index++] = static_cast<int>(255.99 * c.g);
 	image[index++] = static_cast<int>(255.99 * c.b);
+}
+
+
+template<class c>
+void log(c msg)
+{
+	std::cout << msg << std::cout;
 }
