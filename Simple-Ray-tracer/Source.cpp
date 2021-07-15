@@ -51,18 +51,7 @@ void render(Camera& camera)
 
 double hit_sphere(const ray& r,dpoint center, double radii)
 {
-	//t2(b*b) + 2*t*b*(A-C) + (A-C)*(A-C) - r*r = 0
-	dvec3 oc = r.orig - center;
-	double a = dot(r.dir, r.dir);
-	double half_b = dot(r.dir,oc);
-	double c = dot(oc, oc) - radii * radii;
-	double D = half_b * half_b -  a * c;
-	double t = (-half_b - sqrt(D)) / a;
-	if (D < 0)
-		return -1;
-	else
-		return t;
-
+	
 }
 
 

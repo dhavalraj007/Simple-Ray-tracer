@@ -1,5 +1,6 @@
 #pragma once
 #include"glm/vec3.hpp"
+#include"glm/glm.hpp"
 #include<iostream>
 using namespace glm;
 using color = vec3;
@@ -24,6 +25,10 @@ void writeColor(unsigned char* const image,unsigned int &index,const color& c)
 	image[index++] = static_cast<int>(255.99 * c.b);
 }
 
+void log(const char* msg)
+{
+	std::cout << msg << std::endl;
+}
 
 template<class c>
 void log(c msg)
