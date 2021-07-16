@@ -44,5 +44,5 @@ std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max)
 	}
 	dpoint hitPoint = r.at(t);
 
-	return { true,{hitPoint,(hitPoint-center)/radius,t} };
+	return { true,{r,hitPoint,(hitPoint-center)/radius,t} };
 }

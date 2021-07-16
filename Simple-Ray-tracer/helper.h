@@ -2,10 +2,12 @@
 #include"glm/vec3.hpp"
 #include"glm/glm.hpp"
 #include<iostream>
+
 using namespace glm;
 using color = vec3;
 using point = vec3;
 using dpoint = dvec3;
+
 // Constants
 inline constexpr auto SCR_ASPECT_RATIO = 16.0 / 9.0;
 inline constexpr unsigned int SCR_WIDTH = 720;
