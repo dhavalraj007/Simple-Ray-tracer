@@ -8,20 +8,27 @@
 #include"ray.h"
 #include"helper.h"
 #include"Camera.h"
+#include"sphere.h"
+#include"hittable.h"
 
 
 
 //exports file image , encompasses pixel loop
-void render(Camera&); 
+void render(const Camera&,const hittableList&); 
 
 //shoots ray and gets back the color of the object it hits
-color shoot_Ray(const ray&);
+color shoot_Ray(const ray&,const hittableList&);
 
 int main()
 {
 	Camera camera(dpoint(0, 0, 0), 2.0, 1.0);
+	hittableList worldObjects;
+	auto sphere1_ptr = std::make_shared<Sphere>(dpoint{ 0.0,0.0,-1.0 }, 0.4);
+	auto sphere2_ptr = std::make_shared<Sphere>(dpoint{ 0,-100.5,-1 }, 100);
+	worldObjects.add(sphere1_ptr);
+	worldObjects.add(sphere2_ptr);
 	auto start = std::chrono::high_resolution_clock::now();
-	render(camera);
+	render(camera,worldObjects);
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
 	std::cout << "render took " << duration << " millieseconds\n";
@@ -29,7 +36,7 @@ int main()
 }
 
 
-void render(Camera& camera)
+void render(const Camera& camera,const hittableList& worldObjects)
 {
 	unsigned char* image = new unsigned char[SCR_WIDTH * SCR_HEIGHT * SCR_NC];
 
@@ -39,7 +46,7 @@ void render(Camera& camera)
 		std::cerr << "\rScan lines Remaining : " << y << "   " << std::flush;
 		for (int x = 0; x < SCR_WIDTH; x++)
 		{
-			color col = shoot_Ray(camera.getRay(x, y));
+			color col = shoot_Ray(camera.getRay(x, y),worldObjects);
 			writeColor(image, index, col);	//takes colors in 0...1
 		}
 	}
@@ -49,19 +56,14 @@ void render(Camera& camera)
 
 }
 
-double hit_sphere(const ray& r,dpoint center, double radii)
-{
-	
-}
 
 
-color shoot_Ray(const ray& r)
+color shoot_Ray(const ray& r,const hittableList& worldObjects)
 {
-	double t = hit_sphere(r, { 0,0,-1 }, .3);
-	if (t>0)
+	auto [hit,record] = worldObjects.hit(r, 0, infinity);
+	if (hit)
 	{
-		dpoint hitPoint = r.at(t);
-		return 0.5 * (normalize(hitPoint - dvec3(0, 0, -1)) + dvec3(1.0));
+		return 0.5 * (normalize(record.surfaceNormal) + dvec3(1.0));
 	}
 	double a{ 0.5 * (normalize(r.dir).y + 1.0) };
 	return (1 - a) * dvec3(1.0, 1.0, 1.0) + (a)*dvec3(0.5, 0.7, 1.0);

@@ -11,7 +11,7 @@ public:
 	Sphere() = default;
 	Sphere(dpoint cen,double radii):center(cen),radius(radii){}
 	
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) override;
+	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const override;
 };
 
 /// <summary>
@@ -21,7 +21,7 @@ public:
 /// <param name="t_min">: lower limit of t </param>
 /// <param name="t_max">: higher limit of t</param>
 /// <returns>: pair of whether ray hits the sphere or not and hitRecord </returns>
-std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max)
+std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max) const 
 {
 	//t2(b*b) + 2*t*b*(A-C) + (A-C)*(A-C) - r*r = 0
 	dvec3 oc = r.orig - center;

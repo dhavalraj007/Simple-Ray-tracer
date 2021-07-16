@@ -2,6 +2,7 @@
 #include"glm/vec3.hpp"
 #include"glm/glm.hpp"
 #include<iostream>
+#include<limits>
 
 using namespace glm;
 using color = vec3;
@@ -13,7 +14,8 @@ inline constexpr auto SCR_ASPECT_RATIO = 16.0 / 9.0;
 inline constexpr unsigned int SCR_WIDTH = 720;
 inline constexpr unsigned int SCR_HEIGHT = SCR_WIDTH/SCR_ASPECT_RATIO;
 inline constexpr auto SCR_NC = 3;
-
+inline constexpr double infinity = std::numeric_limits<double>::infinity();
+inline constexpr double pi = 3.1415926535897932385;
 /// <summary>
 ///	writes color RGB to image pointer at index,index+1,index+2 also modifies index to index+3
 /// </summary>

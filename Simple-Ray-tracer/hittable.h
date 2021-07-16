@@ -25,7 +25,7 @@ private:
 
 class hittable {
 public:
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) = 0;
+	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const  = 0;
 };
 
 class hittableList:public hittable {
@@ -37,10 +37,10 @@ public:
 	void add(std::shared_ptr<hittable> obj) { objects.push_back(obj); }
 	void clear() { objects.clear(); }
 
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) override;
+	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const override;
 };
 
-std::pair<bool, hitRecord> hittableList::hit(const ray& r, double t_min, double t_max)
+std::pair<bool, hitRecord> hittableList::hit(const ray& r, double t_min, double t_max) const
 {
 	double closestTillNow = t_max;
 	bool hitAnything = false;
