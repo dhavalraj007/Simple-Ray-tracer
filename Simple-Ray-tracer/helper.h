@@ -3,6 +3,7 @@
 #include"glm/glm.hpp"
 #include<iostream>
 #include<limits>
+#include<random>
 
 using namespace glm;
 using color = vec3;
@@ -22,20 +23,35 @@ inline constexpr double pi = 3.1415926535897932385;
 /// <param name="image"> pointer to pixel data</param>
 /// <param name="index"> refrence to index where RGB is to be written</param>
 /// <param name="c"> color RGB in range 0..1 </param>
-void writeColor(unsigned char* const image,unsigned int &index,const color& c)
+inline void writeColor(unsigned char* const image,unsigned int &index,const color& c)
 {
-	image[index++] = static_cast<int>(255.99 * c.r);
-	image[index++] = static_cast<int>(255.99 * c.g);
-	image[index++] = static_cast<int>(255.99 * c.b);
+	image[index++] = static_cast<int>(255.99 * std::clamp(c.r, 0.0f,0.999f));
+	image[index++] = static_cast<int>(255.99 * std::clamp(c.g, 0.0f, 0.999f));
+	image[index++] = static_cast<int>(255.99 * std::clamp(c.b, 0.0f, 0.999f));
 }
 
-void log(const char* msg)
+inline void log(const char* msg)
 {
 	std::cout << msg << std::endl;
 }
 
 template<class c>
-void log(c msg)
+inline void log(c msg)
 {
 	std::cout << msg << std::cout;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <returns>random double between [0,1)</returns>
+inline double random_double() {
+	static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+	static std::random_device device;
+	static std::mt19937 generator(device());
+	return distribution(generator);
+}
+
+inline double random_double(double min,double max) {
+	return min + (max - min) * random_double();
 }

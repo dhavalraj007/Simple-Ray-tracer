@@ -16,13 +16,13 @@ public:
 		viewport_height(vp_width/ SCR_ASPECT_RATIO ),
 		focalLength(fLength){}
 
-	ray getRay(int x, int y) const 
+	ray getRay(double x, double y) const
 	{
 		//origin calncels out
 		return ray(origin,
 			
 			- dpoint(viewport_width / 2, viewport_height / 2, focalLength)
-			+ dpoint(double(x) / (SCR_WIDTH - 1.0) * viewport_width, double(y) / (SCR_HEIGHT - 1.0) * viewport_height, 0)
+			+ dpoint(x * viewport_width, y * viewport_height, 0)
 			  );
 	}
 

@@ -11,13 +11,11 @@
 #include"sphere.h"
 #include"hittable.h"
 
-
-
 //exports file image , encompasses pixel loop
-void render(const Camera&,const hittableList&); 
+void render(const Camera&, const hittableList&);
 
 //shoots ray and gets back the color of the object it hits
-color shoot_Ray(const ray&,const hittableList&);
+color shoot_Ray(const ray&, const hittableList&);
 
 int main()
 {
@@ -25,42 +23,45 @@ int main()
 	hittableList worldObjects;
 	auto sphere1_ptr = std::make_shared<Sphere>(dpoint{ 0.0,0.0,-1.0 }, 0.4);
 	auto sphere2_ptr = std::make_shared<Sphere>(dpoint{ 0,-100.5,-1 }, 100);
+	auto sphere3_ptr = std::make_shared<Sphere>(dpoint{ 0.5,0.0,-1 }, 0.3);
 	worldObjects.add(sphere1_ptr);
 	worldObjects.add(sphere2_ptr);
+	worldObjects.add(sphere3_ptr);
 	auto start = std::chrono::high_resolution_clock::now();
-	render(camera,worldObjects);
+	render(camera, worldObjects);
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
 	std::cout << "render took " << duration << " millieseconds\n";
 	return 0;
 }
 
-
-void render(const Camera& camera,const hittableList& worldObjects)
+void render(const Camera& camera, const hittableList& worldObjects)
 {
 	unsigned char* image = new unsigned char[SCR_WIDTH * SCR_HEIGHT * SCR_NC];
-
+	int SPP = 10;
 	unsigned int index = 0;
 	for (int y = SCR_HEIGHT - 1; y >= 0; y--)
 	{
 		std::cerr << "\rScan lines Remaining : " << y << "   " << std::flush;
 		for (int x = 0; x < SCR_WIDTH; x++)
 		{
-			color col = shoot_Ray(camera.getRay(x, y),worldObjects);
+			color col;
+			for (int s = 0; s < SPP; s++)
+			{
+				col += shoot_Ray(camera.getRay((x+random_double())/(SCR_WIDTH-1),(y+random_double())/(SCR_HEIGHT-1)), worldObjects);
+			}
+			col /= double(SPP);
 			writeColor(image, index, col);	//takes colors in 0...1
 		}
 	}
 	std::cerr << "\nDone.\n" << std::flush;
-	stbi_write_png("./shit.png", SCR_WIDTH, SCR_HEIGHT, SCR_NC, image,
+	stbi_write_png("./shit1.png", SCR_WIDTH, SCR_HEIGHT, SCR_NC, image,
 		SCR_NC * SCR_WIDTH);
-
 }
 
-
-
-color shoot_Ray(const ray& r,const hittableList& worldObjects)
+color shoot_Ray(const ray& r, const hittableList& worldObjects)
 {
-	auto [hit,record] = worldObjects.hit(r, 0, infinity);
+	auto [hit, record] = worldObjects.hit(r, 0, infinity);
 	if (hit)
 	{
 		return 0.5 * (normalize(record.surfaceNormal) + dvec3(1.0));

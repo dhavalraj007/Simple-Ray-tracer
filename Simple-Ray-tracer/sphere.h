@@ -23,7 +23,7 @@ public:
 /// <returns>: pair of whether ray hits the sphere or not and hitRecord </returns>
 std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max) const 
 {
-	//t2(b*b) + 2*t*b*(A-C) + (A-C)*(A-C) - r*r = 0
+	//t2(b*b) + 2*t*b*(A-C) + (A-C)*(A-C) - r*r = 0	// ray = A+tb , C = center , r = radius
 	dvec3 oc = r.orig - center;
 	double a = dot(r.dir, r.dir);
 	double half_b = dot(r.dir, oc);
