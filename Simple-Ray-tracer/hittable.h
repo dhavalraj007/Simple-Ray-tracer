@@ -5,17 +5,25 @@
 #include"helper.h"
 #include"ray.h"
 
-
+class Material;
 struct hitRecord {
 	dpoint hitPoint{};
 	dvec3 surfaceNormal{};	//normalized
 	double t{};
 	bool frontFace = true;
+	std::shared_ptr<Material> material;
 	hitRecord() = default;
-	hitRecord(dpoint _hitPoint,dvec3 _surfaceNormal,double _t):hitPoint(_hitPoint), surfaceNormal(_surfaceNormal),t(_t){}
-	hitRecord(const ray& r, dpoint _hitPoint, dvec3 _surfaceNormal, double _t) :hitPoint(_hitPoint), surfaceNormal(_surfaceNormal), t(_t) { set_face_normal(r); }
+	hitRecord(dpoint _hitPoint, dvec3 _surfaceNormal, double _t) :hitPoint(_hitPoint), surfaceNormal(_surfaceNormal), t(_t) {}
+	hitRecord(const ray& r, dpoint _hitPoint, dvec3 _surfaceNormal, double _t, std::shared_ptr<Material> _material)
+		:hitPoint(_hitPoint)
+		, surfaceNormal(_surfaceNormal)
+		, t(_t)
+		, material(_material)
+	{
+		set_face_normal(r);
+	}
 private:
-	//sets the members front_face and surfaceNormal such that surfaceNormal always points in the opposite direction of ray r. 
+	//sets the members front_face and surfaceNormal such that surfaceNormal always points in the opposite direction of ray r.
 	inline void set_face_normal(const ray& r)
 	{
 		frontFace = dot(r.dir, surfaceNormal) < 0;
@@ -25,14 +33,14 @@ private:
 
 class hittable {
 public:
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const  = 0;
+	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const = 0;
 };
 
-class hittableList:public hittable {
+class hittableList :public hittable {
 public:
 	std::vector<std::shared_ptr<hittable>> objects;
-	
-	hittableList(){}
+
+	hittableList() {}
 	hittableList(std::shared_ptr<hittable> obj) { add(obj); }
 	void add(std::shared_ptr<hittable> obj) { objects.push_back(obj); }
 	void clear() { objects.clear(); }

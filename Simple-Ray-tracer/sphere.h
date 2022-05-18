@@ -2,14 +2,15 @@
 #include"helper.h"
 #include"ray.h"
 #include"hittable.h"
+#include"material.h"
 
 class Sphere:public hittable {
 public:
 	dpoint center;
 	double radius;
-	
+	std::shared_ptr<Material> material;
 	Sphere() = default;
-	Sphere(dpoint cen,double radii):center(cen),radius(radii){}
+	Sphere(dpoint cen,double radii,std::shared_ptr<Material> mat):center(cen),radius(radii),material(mat){}
 	
 	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const override;
 };
@@ -44,5 +45,5 @@ std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max)
 	}
 	dpoint hitPoint = r.at(t);
 
-	return { true,{r,hitPoint,(hitPoint-center)/radius,t} };
+	return { true,{r,hitPoint,(hitPoint-center)/radius,t,material} };
 }

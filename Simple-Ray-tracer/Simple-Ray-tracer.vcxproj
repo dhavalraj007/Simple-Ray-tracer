@@ -150,6 +150,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="hittable.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stb_image.h" />
