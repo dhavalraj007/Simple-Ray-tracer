@@ -1,2 +1,2 @@
 # Simple-Ray-tracer
-Learning from raytracing in one weekend book.
+![](https://github.com/dhavalraj007/Simple-Ray-tracer/blob/master/Simple-Ray-tracer/image.png)
