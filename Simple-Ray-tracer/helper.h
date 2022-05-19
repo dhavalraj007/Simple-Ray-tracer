@@ -12,7 +12,7 @@ using dpoint = dvec3;
 
 // Constants
 inline constexpr auto SCR_ASPECT_RATIO = 16.0 / 9.0;
-inline constexpr unsigned int SCR_WIDTH = 720;
+inline constexpr unsigned int SCR_WIDTH = 1024;
 inline constexpr unsigned int SCR_HEIGHT = SCR_WIDTH/SCR_ASPECT_RATIO;
 inline constexpr auto SCR_NC = 3;
 inline constexpr double infinity = std::numeric_limits<double>::infinity();

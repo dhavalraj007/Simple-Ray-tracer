@@ -47,6 +47,9 @@
     <ClInclude Include="material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lightSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

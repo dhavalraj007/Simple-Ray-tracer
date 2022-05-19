@@ -3,16 +3,17 @@
 struct hitRecord;
 class Material 
 {
-	
 public:
+	Material(const color& c):col(c){}
 	virtual bool scatterRay(const ray& r_in, const hitRecord& record, color& attenuation, ray& scatteredRay
 	) const = 0;
+	color col;
 };
 
 class Diffuse :public Material
 {
 public:
-	Diffuse(const color& _col):col(_col){}
+	Diffuse(const color& _col):Material(_col){}
 	virtual bool scatterRay(const ray& r_in, const hitRecord& record, color& attenuation, ray& scatteredRay
 	) const override
 	{
@@ -20,13 +21,13 @@ public:
 		attenuation = col;
 		return true;
 	}
-	color col;
+	
 };
 
 class Metal:public Material
 {
 public:
-	Metal(const color& _col) :col(_col) {}
+	Metal(const color& _col) :Material(_col) {}
 	virtual bool scatterRay(const ray& r_in, const hitRecord& record, color& attenuation, ray& scatteredRay
 	) const override
 	{
@@ -35,5 +36,16 @@ public:
 		attenuation = col;
 		return glm::dot(reflectedRay,record.surfaceNormal)>0;
 	}
-	color col;
+};
+
+class Light :public Material
+{
+public:
+	Light(const color& _col) :Material(_col) {}
+	virtual bool scatterRay(const ray& r_in, const hitRecord& record, color& attenuation, ray& scatteredRay
+	) const override
+	{
+		attenuation = col * 0.2f;
+		return false;
+	}
 };
