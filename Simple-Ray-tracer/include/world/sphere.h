@@ -12,7 +12,7 @@ public:
 	Sphere() = default;
 	Sphere(dpoint cen,double radii,std::shared_ptr<Material> mat):center(cen),radius(radii),material(mat){}
 	
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const override;
+	virtual bool hit(const ray& r, double t_min, double t_max, hitRecord* record) const override;
 };
 
 /// <summary>
@@ -22,7 +22,7 @@ public:
 /// <param name="t_min">: lower limit of t </param>
 /// <param name="t_max">: higher limit of t</param>
 /// <returns>: pair of whether ray hits the sphere or not and hitRecord </returns>
-std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max) const 
+bool Sphere::hit(const ray& r, double t_min, double t_max, hitRecord* record) const
 {
 	//t2(b*b) + 2*t*b*(A-C) + (A-C)*(A-C) - r*r = 0	// ray = A+tb , C = center , r = radius
 	glm::dvec3 oc = r.orig - center;
@@ -32,7 +32,7 @@ std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max)
 	double D = half_b * half_b - a * c;
 
 	if (D < 0)			//no hit
-		return { false,{} };
+		return false;
 	
 	double t1 = (-half_b - sqrt(D)) / a;	// front hit point 
 	double t2 = (-half_b + sqrt(D)) / a;	// back hit point
@@ -41,9 +41,16 @@ std::pair<bool, hitRecord> Sphere::hit(const ray& r, double t_min, double t_max)
 	{
 		t = t2;
 		if (t < t_min || t>t_max)
-			return { false, {} };		// ray hit but not in the range [t_min,t_max]
+			return false;		// ray hit but not in the range [t_min,t_max]
 	}
-	dpoint hitPoint = r.at(t);
-
-	return { true,{r,hitPoint,(hitPoint-center)/radius,t,material} };
+	//all ok
+	if (record)	//if not nullptr //allowing record to be nullptr allows to optinally get record
+	{
+		record->hitPoint = r.at(t);
+		record->surfaceNormal = (record->hitPoint - center) / radius;
+		record->t = t;
+		record->material = material;
+		record->set_face_normal(r);
+	}
+	return true;
 }

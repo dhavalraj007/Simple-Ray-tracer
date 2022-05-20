@@ -22,7 +22,6 @@ struct hitRecord {
 	{
 		set_face_normal(r);
 	}
-private:
 	//sets the members front_face and surfaceNormal such that surfaceNormal always points in the opposite direction of ray r.
 	inline void set_face_normal(const ray& r)
 	{
@@ -33,7 +32,7 @@ private:
 
 class hittable {
 public:
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const = 0;
+	virtual bool hit(const ray& r, double t_min, double t_max,hitRecord* record) const = 0;
 };
 
 class hittableList :public hittable {
@@ -45,25 +44,22 @@ public:
 	void add(std::shared_ptr<hittable> obj) { objects.push_back(obj); }
 	void clear() { objects.clear(); }
 
-	virtual std::pair<bool, hitRecord> hit(const ray& r, double t_min, double t_max) const override;
+	virtual bool hit(const ray& r, double t_min, double t_max, hitRecord* record) const  override;
 };
 
-std::pair<bool, hitRecord> hittableList::hit(const ray& r, double t_min, double t_max) const
+bool hittableList::hit(const ray& r, double t_min, double t_max, hitRecord* record) const
 {
 	double closestTillNow = t_max;
 	bool hitAnything = false;
-	hitRecord record;
 
-	for (auto obj : objects)
+	for (auto& obj : objects)
 	{
-		auto [hit, tempRecord] = obj->hit(r, t_min, closestTillNow);
-		if (hit)
+		if (obj->hit(r, t_min, closestTillNow, record))
 		{
 			hitAnything = true;
-			record = tempRecord;
-			closestTillNow = tempRecord.t;
+			closestTillNow = record->t;
 		}
 	}
 
-	return { hitAnything,record };
+	return hitAnything;
 }

@@ -25,7 +25,7 @@ unsigned char* render(const Camera&, const hittableList&, const std::vector<Ligh
 //shoot ray and get back the color of the object it hit
 color shoot_Ray(const ray&, const hittableList&,const std::vector<LightSource>&, int);
 int RAY_DEPTH = 10;
-int SPP = 6;
+int SPP = 2;
 
 int main()
 {
@@ -81,7 +81,7 @@ int main()
 		ImGui::Text("Last Render took: %d milliseconds", duration);
 		ImGui::SliderInt("Samples per Pixel", &SPP, 1, 50);
 		ImGui::SliderInt("Ray depth", &RAY_DEPTH, 1, 50);
-		if (ImGui::SliderFloat3("camera pos", glm::value_ptr(camPos), 0.0, 10.0))
+		if (ImGui::SliderFloat3("camera pos", glm::value_ptr(camPos), -10.0, 10.0))
 			camera.setPos(camPos);
 
 		ImGui::End();
@@ -113,7 +113,7 @@ unsigned char* render(const Camera& camera, const hittableList& worldObjects, co
 	unsigned int index = 0;
 	for (int y = global::SCR_HEIGHT - 1; y >= 0; y--)
 	{
-		std::cerr << "\rScan lines Remaining : " << y << "   " << std::flush;
+		//std::cerr << "\rScan lines Remaining : " << y << "   " << std::flush;
 		for (int x = 0; x < global::SCR_WIDTH; x++)
 		{
 			color col(0);
@@ -125,17 +125,19 @@ unsigned char* render(const Camera& camera, const hittableList& worldObjects, co
 			global::writeColor(image, index, col);	//takes colors in 0...1
 		}
 	}
-	std::cerr << "\nDone.\n" << std::flush;
+	//std::cerr << "\nDone.\n" << std::flush;
 	//stbi_write_png("./image.png", global::SCR_WIDTH, global::SCR_HEIGHT, global::SCR_NC, image,global::SCR_NC * global::SCR_WIDTH);
 	return image;
 }
 
+
+//one potential wrong is that if ray hit the object then to the light it will behave as if it hit the sky so it will take sky contribution from that but it shouldnt.
 color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector<LightSource>& lights,int depth)
 {
 	if (depth <= 0)				//meaning theres no light from this ray
 		return color(0, 0, 0);
-
-	auto [hit, record] = worldObjects.hit(r, 0.001, global::infinity);
+	hitRecord record;
+	auto hit = worldObjects.hit(r, 0.001, global::infinity,&record);
 	if (hit)
 	{
 		color attenuation(0);
@@ -145,11 +147,11 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 
 		for (auto& light : lights)
 		{
-			lightContribution+=light.getColor(record.hitPoint, record.surfaceNormal,worldObjects);
+			light.getColor(lightContribution,record.hitPoint, record.surfaceNormal,worldObjects);
 		}
 
 		if (shouldScatter)
-			return (attenuation )*shoot_Ray(scatteredRay, worldObjects,lights, depth - 1) + lightContribution;
+			return (attenuation)*shoot_Ray(scatteredRay, worldObjects,lights, depth - 1) + lightContribution;
 		else
 			return (attenuation + lightContribution);
 	}
@@ -157,7 +159,7 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 	{
 		for (auto& light : lights)
 		{
-			auto [hit, record] = light.sphere->hit(r, 0.001, global::infinity);
+			auto hit = light.sphere->hit(r, 0.001, global::infinity,nullptr);
 			if (hit)
 			{
 				color attenuation(0);

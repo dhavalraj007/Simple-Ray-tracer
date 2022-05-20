@@ -17,15 +17,15 @@ public:
 	{
 		sphere = std::make_shared<Sphere>(position, radii, std::make_shared<Light>(col));
 	}
-	color getColor(dpoint p, glm::dvec3 normalAtp,hittableList worldObjects) const
-	{
-		color lightContribution(0);
 
+	void getColor(color& lightContribution,dpoint p, glm::dvec3 normalAtp,const hittableList& worldObjects) const
+	{
 		ray r(p, position - p);	//shadow ray
 		for (auto& object : worldObjects.objects)	//if shadow ray hits any objects in b/w p and light return black;
 		{
-			if (object->hit(r, 0.001, global::infinity).first)
-				return lightContribution;	//0
+
+			if (object->hit(r, 0.001, global::infinity,nullptr))
+				return;
 		}
 		// else calculate lambert light
 
@@ -33,15 +33,14 @@ public:
 		//std::cout << angle << std::endl;
 		if (angle > glm::radians(90.f) || angle < glm::radians(-90.f))	//normal is pointing away from light
 		{
-			lightContribution = color(0.0, 0.0, 0.0);
+			return;
 		}
 		else
 		{
 			if (angle > 0)
-				lightContribution = intensity * col * float(1 - (angle / glm::radians(90.f)));
+				lightContribution += intensity * col * float(1 - (angle / glm::radians(90.f)));
 			else
-				lightContribution = intensity * col * float(1 - (angle / glm::radians(-90.f)));
+				lightContribution += intensity * col * float(1 - (angle / glm::radians(-90.f)));
 		}
-		return lightContribution;
 	}
 };

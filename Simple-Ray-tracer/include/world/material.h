@@ -17,7 +17,8 @@ public:
 	virtual bool scatterRay(const ray& r_in, const hitRecord& record, color& attenuation, ray& scatteredRay
 	) const override
 	{
-		scatteredRay = {record.hitPoint, record.hitPoint + (glm::dvec3)global::random_in_hemisphere(record.surfaceNormal) };
+		scatteredRay.orig = record.hitPoint;
+		scatteredRay.dir = record.hitPoint + (glm::dvec3)global::random_in_hemisphere(record.surfaceNormal);
 		attenuation = col;
 		return true;
 	}
