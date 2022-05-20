@@ -12,6 +12,7 @@
 #include"world/ray.h"
 #include"world/Camera.h"
 #include"world/sphere.h"
+#include"world/plane.h"
 #include"world/hittable.h"
 #include"world/material.h"
 #include"world/lightSource.h"
@@ -27,12 +28,17 @@ color shoot_Ray(const ray&, const hittableList&,const std::vector<LightSource>&,
 int RAY_DEPTH = 10;
 int SPP = 2;
 
+//TODO
+// Bounding plane
+// why white plane doesnt work
+// light drawing corrections
+
 int main()
 {
 	core::Window window;
 	window.create(global::props);
 	
-	Camera camera(dpoint(0, 0, 1), 2.0, 1.0);
+	Camera camera(dpoint(0, 0, 2.5), 2.0, 1.0);
 	hittableList worldObjects;
 	std::vector<LightSource> lights;
 	lights.emplace_back(dpoint(-1, 1, -1), color(1, 1, 1), .4f, 0.3f);
@@ -40,16 +46,30 @@ int main()
 	//lights.emplace_back(dpoint( 1, 1, -1), color(0, 1, 0), .4f,0.3f);
 
 	auto material_ground = std::make_shared<Diffuse>(color(0.8, 0.8, 0.0));
-	auto diffuseMaterial = std::make_shared<Diffuse>(color(0.7, 0.3, 0.3));
 	auto metalMaterial = std::make_shared<Metal>(color(0.8, 0.8, 0.8));
+	auto diffuseMaterialRed = std::make_shared<Diffuse>(color(0.7, 0.3, 0.3));
+	auto diffuseMaterialBlue = std::make_shared<Diffuse>(color(0.3, 0.3, 0.7));
+	auto diffuseMaterialWhite = std::make_shared<Diffuse>(color(1, 1, 1));
 
-	worldObjects.add(std::make_shared<Sphere>(point(0.0, -100.5, -1.0), 100.0, material_ground));
-	worldObjects.add(std::make_shared<Sphere>(point(0.5, 0.0, -1.0), 0.5, metalMaterial));
-	worldObjects.add(std::make_shared<Sphere>(point(-0.5, 0.0, -1.0), 0.5, diffuseMaterial));
-
-	
+	//worldObjects.add(std::make_shared<Sphere>(point(0.0, -100.5, -1.0), 100.0, material_ground));
+	//worldObjects.add(std::make_shared<Sphere>(point(0.5, 0.0, -1.0), 0.5, metalMaterial));
+	worldObjects.add(std::make_shared<Sphere>(point(-0.5, 0.0, -1.0), 0.5, diffuseMaterialRed));
+	//auto plane1=std::make_shared<Plane>(point(0.0, 0.0, -3.0), glm::dvec3(0.0, 0.0, 1.0), diffuseMaterialRed);
+	//auto plane2=std::make_shared<Plane>(point(0.0, 0.0, +3.0), glm::dvec3(0.0, 0.0, -1.0), diffuseMaterialWhite);
+	auto planeUp = std::make_shared<Plane>(point(0.0, 3.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), metalMaterial);
+	auto planeGround = std::make_shared<Plane>(point(0.0, -3.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), metalMaterial);
+	auto planeLeft=std::make_shared<Plane>(point(3.0, 0.0, 0.0), glm::dvec3(-1.0, 0.0, 0.0), metalMaterial);
+	auto planeRight=std::make_shared<Plane>(point(-3.0, 0.0, 0.0), glm::dvec3(1.0, 0.0, 0.0), metalMaterial);
+	//worldObjects.add(plane1);
+	//worldObjects.add(plane2);
+	worldObjects.add(planeUp);
+	worldObjects.add(planeGround);
+	worldObjects.add(planeLeft);
+	worldObjects.add(planeRight);
+	//worldObjects.add(groundPlane);
 
 	glm::vec3 camPos=camera.getPos();
+	bool realTime = false;
 	GLuint textureID=0;
 	auto duration = 0LL;
 	while (!window.m_ShouldClose)
@@ -57,18 +77,22 @@ int main()
 		window.beginRender();
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-		auto start = std::chrono::high_resolution_clock::now();
-		unsigned char* imageData = render(camera, worldObjects, lights);
-		auto stop = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+		if (realTime)
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+			unsigned char* imageData = render(camera, worldObjects, lights);
+			auto stop = std::chrono::high_resolution_clock::now();
+			duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
 
-		global::LoadTextureFromData(textureID, imageData, global::SCR_WIDTH, global::SCR_HEIGHT);
+			global::LoadTextureFromData(textureID, imageData, global::SCR_WIDTH, global::SCR_HEIGHT);
+		}
 		//render
 		ImGui::Begin("View");
 		ImGui::Image((ImTextureID)textureID, ImVec2(global::SCR_WIDTH, global::SCR_HEIGHT));
 		ImGui::End();
 
 		ImGui::Begin("Controls");
+
 		if (ImGui::Button("Render"))
 		{
 			auto start = std::chrono::high_resolution_clock::now();
@@ -78,10 +102,12 @@ int main()
 
 			global::LoadTextureFromData(textureID, imageData, global::SCR_WIDTH, global::SCR_HEIGHT);
 		}
+		
 		ImGui::Text("Last Render took: %d milliseconds", duration);
+		ImGui::Checkbox("Real Time", &realTime);
 		ImGui::SliderInt("Samples per Pixel", &SPP, 1, 50);
 		ImGui::SliderInt("Ray depth", &RAY_DEPTH, 1, 50);
-		if (ImGui::SliderFloat3("camera pos", glm::value_ptr(camPos), -10.0, 10.0))
+		if (ImGui::SliderFloat3("camera pos", glm::value_ptr(camPos), -20.0, 20.0))
 			camera.setPos(camPos);
 
 		ImGui::End();
@@ -159,6 +185,7 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 	{
 		for (auto& light : lights)
 		{
+			//errors multiple lights , object precedence
 			auto hit = light.sphere->hit(r, 0.001, global::infinity,nullptr);
 			if (hit)
 			{

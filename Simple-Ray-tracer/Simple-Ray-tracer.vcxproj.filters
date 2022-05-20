@@ -93,6 +93,7 @@
     <ClInclude Include="include\world\sphere.h">
       <Filter>include\world</Filter>
     </ClInclude>
+    <ClInclude Include="include\world\plane.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\external\imgui\imgui.cpp">

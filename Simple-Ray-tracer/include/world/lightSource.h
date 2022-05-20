@@ -24,7 +24,7 @@ public:
 		for (auto& object : worldObjects.objects)	//if shadow ray hits any objects in b/w p and light return black;
 		{
 
-			if (object->hit(r, 0.001, global::infinity,nullptr))
+			if (object->hit(r, 0.001, 1,nullptr))
 				return;
 		}
 		// else calculate lambert light

@@ -119,6 +119,7 @@
     <ClInclude Include="include\world\hittable.h" />
     <ClInclude Include="include\world\lightSource.h" />
     <ClInclude Include="include\world\material.h" />
+    <ClInclude Include="include\world\plane.h" />
     <ClInclude Include="include\world\ray.h" />
     <ClInclude Include="include\world\sphere.h" />
   </ItemGroup>
