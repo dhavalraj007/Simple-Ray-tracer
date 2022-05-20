@@ -1,57 +1,146 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="include">
+      <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="include\core">
+      <UniqueIdentifier>{A17DD969-8DE0-680E-3666-A1C422A83491}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="include\external">
+      <UniqueIdentifier>{FBE7EB21-E7E0-0A74-1013-F0F8FC6AEA7F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\external\imgui">
+      <UniqueIdentifier>{A5C5A261-91BF-CBB3-7A2C-62C466C53120}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\external\imgui\debuggers">
+      <UniqueIdentifier>{4C851CA5-38D6-07E7-613A-F6A84DEA9A50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\input">
+      <UniqueIdentifier>{683275A5-D4F2-F0DB-9D2D-3A5909AD35B8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\world">
+      <UniqueIdentifier>{201D73A6-8CDD-EEDC-5518-385AC19733B9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{C55F2ECF-B12C-89DA-DA45-7782C671BE68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\input">
+      <UniqueIdentifier>{0C5966B5-78C3-1A2C-C101-CCD12DABF880}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\core\window.h">
+      <Filter>include\core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imconfig.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imgui.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imgui_impl_opengl3.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imgui_impl_sdl.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imgui_internal.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imgui_stdlib.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imstb_rectpack.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imstb_textedit.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\external\imgui\imstb_truetype.h">
+      <Filter>include\external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\helper.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\input\keyboard.h">
+      <Filter>include\input</Filter>
+    </ClInclude>
+    <ClInclude Include="include\input\mouse.h">
+      <Filter>include\input</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world\Camera.h">
+      <Filter>include\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world\hittable.h">
+      <Filter>include\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world\lightSource.h">
+      <Filter>include\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world\material.h">
+      <Filter>include\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world\ray.h">
+      <Filter>include\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world\sphere.h">
+      <Filter>include\world</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="include\external\imgui\imgui.cpp">
+      <Filter>include\external\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="stb_impl.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="include\external\imgui\imgui_demo.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\external\imgui\imgui_draw.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\external\imgui\imgui_impl_opengl3.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\external\imgui\imgui_impl_sdl.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\external\imgui\imgui_stdlib.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\external\imgui\imgui_tables.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\external\imgui\imgui_widgets.cpp">
+      <Filter>include\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\window.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helper.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\keyboard.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\mouse.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb_impl.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stb_image_write.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="helper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hittable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lightSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <Natvis Include="include\external\imgui\debuggers\imgui.natvis">
+      <Filter>include\external\imgui\debuggers</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>
