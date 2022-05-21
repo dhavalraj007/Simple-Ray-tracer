@@ -21,10 +21,10 @@
 #include"imgui/imgui.h"
 
 //exports file image , encompasses pixel loop
-unsigned char* render(const Camera&, const hittableList&, const std::vector<LightSource>&);
+unsigned char* render(const Camera&, const hittableList&, const std::vector<std::shared_ptr<LightSource>>&);
 
 //shoot ray and get back the color of the object it hit
-color shoot_Ray(const ray&, const hittableList&,const std::vector<LightSource>&, int);
+color shoot_Ray(const ray&, const hittableList&, const std::vector<std::shared_ptr<LightSource>>&, int);
 int RAY_DEPTH = 10;
 int SPP = 2;
 
@@ -40,10 +40,12 @@ int main()
 	
 	Camera camera(dpoint(0, 0, 2.5), 2.0, 1.0);
 	hittableList worldObjects;
-	std::vector<LightSource> lights;
-	lights.emplace_back(dpoint(-1, 1, -1), color(1, 1, 1), .4f, 0.3f);
+	std::shared_ptr<LightSource> light = std::make_shared<LightSource>(dpoint(-1, 1, -1), color(1, 1, 1), 1.f, 0.3f);
+	std::vector<std::shared_ptr<LightSource>> lights;
+	lights.push_back(light);
 	//lights.emplace_back(dpoint( 0, 1, -1), color(1, 0, 0), .4f,0.3f);
 	//lights.emplace_back(dpoint( 1, 1, -1), color(0, 1, 0), .4f,0.3f);
+	worldObjects.add(light);
 
 	auto material_ground = std::make_shared<Diffuse>(color(0.8, 0.8, 0.0));
 	auto metalMaterial = std::make_shared<Metal>(color(0.8, 0.8, 0.8));
@@ -54,18 +56,20 @@ int main()
 	//worldObjects.add(std::make_shared<Sphere>(point(0.0, -100.5, -1.0), 100.0, material_ground));
 	//worldObjects.add(std::make_shared<Sphere>(point(0.5, 0.0, -1.0), 0.5, metalMaterial));
 	worldObjects.add(std::make_shared<Sphere>(point(-0.5, 0.0, -1.0), 0.5, diffuseMaterialRed));
-	//auto plane1=std::make_shared<Plane>(point(0.0, 0.0, -3.0), glm::dvec3(0.0, 0.0, 1.0), diffuseMaterialRed);
-	//auto plane2=std::make_shared<Plane>(point(0.0, 0.0, +3.0), glm::dvec3(0.0, 0.0, -1.0), diffuseMaterialWhite);
-	auto planeUp = std::make_shared<Plane>(point(0.0, 3.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), metalMaterial);
-	auto planeGround = std::make_shared<Plane>(point(0.0, -3.0, 0.0), glm::dvec3(0.0, 1.0, 0.0), metalMaterial);
-	auto planeLeft=std::make_shared<Plane>(point(3.0, 0.0, 0.0), glm::dvec3(-1.0, 0.0, 0.0), metalMaterial);
-	auto planeRight=std::make_shared<Plane>(point(-3.0, 0.0, 0.0), glm::dvec3(1.0, 0.0, 0.0), metalMaterial);
+	//auto planeFront=std::make_shared<Plane>(point(0.0, 0.0, +3.0), glm::dvec3(0.0, 0.0, -1.0), diffuseMaterialWhite);
+	
+	auto planeBack=std::make_shared<Plane>(point(0.0, 0.0, -3.0), glm::dvec3(0.0, 0.0, 1.0), diffuseMaterialRed);
+	//auto planeUp = std::make_shared<Plane>(point(0.0, 3.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), metalMaterial);
+	auto planeGround = std::make_shared<Plane>(point(0.0, -0.5, 0.0), glm::dvec3(0.0, 1.0, 0.0), diffuseMaterialRed);
+	auto planeLeft=std::make_shared<Plane>(point(3.0, 0.0, 0.0), glm::dvec3(-1.0, 0.0, 0.0), diffuseMaterialRed);
+	auto planeRight=std::make_shared<Plane>(point(-3.0, 0.0, 0.0), glm::dvec3(1.0, 0.0, 0.0), diffuseMaterialBlue);
 	//worldObjects.add(plane1);
-	//worldObjects.add(plane2);
-	worldObjects.add(planeUp);
+	//worldObjects.add(planeBack);
+	//worldObjects.add(planeUp);
 	worldObjects.add(planeGround);
-	worldObjects.add(planeLeft);
-	worldObjects.add(planeRight);
+	//worldObjects.add(planeLeft);
+	//worldObjects.add(planeRight);
+
 	//worldObjects.add(groundPlane);
 
 	glm::vec3 camPos=camera.getPos();
@@ -132,7 +136,7 @@ int main()
 	return 0;
 }
 
-unsigned char* render(const Camera& camera, const hittableList& worldObjects, const std::vector<LightSource>& lights)
+unsigned char* render(const Camera& camera, const hittableList& worldObjects, const std::vector<std::shared_ptr<LightSource>>& lights)
 {
 	unsigned char* image = new unsigned char[global::SCR_WIDTH * global::SCR_HEIGHT * global::SCR_NC];
 
@@ -157,8 +161,10 @@ unsigned char* render(const Camera& camera, const hittableList& worldObjects, co
 }
 
 
-//one potential wrong is that if ray hit the object then to the light it will behave as if it hit the sky so it will take sky contribution from that but it shouldnt.
-color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector<LightSource>& lights,int depth)
+
+//1.shoot ray if it hits the object then scatter ray get a attenuation object color shoot scatter ray get a next hit record compute the angle between scatter ray and normal at hit point assign propotional attenuation factor of reduction for the scatter ray hitting the current hitPoint.
+//2. if it is the scatter ray (depth<RAY_DEPTH) and you hit the lightSource then just return white.
+color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector<std::shared_ptr<LightSource>>& lights,int depth)
 {
 	if (depth <= 0)				//meaning theres no light from this ray
 		return color(0, 0, 0);
@@ -166,14 +172,23 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 	auto hit = worldObjects.hit(r, 0.001, global::infinity,&record);
 	if (hit)
 	{
+		if (depth < RAY_DEPTH)	//scattered Ray
+		{
+			//if scattered Ray hits lightSource you do not need to compute contribution because the hitPoint at any object calculates light contributions from all sources.
+			if (dynamic_cast<Light*>(record.material.get()))
+				return color(1, 1, 1);
+		}
 		color attenuation(0);
 		color lightContribution(0);
 		ray scatteredRay;
 		bool shouldScatter = record.material->scatterRay(r, record, attenuation, scatteredRay);
 
-		for (auto& light : lights)
+		if (dynamic_cast<Light*>(record.material.get()) == nullptr)	//if not lightSource then calc lighting
 		{
-			light.getColor(lightContribution,record.hitPoint, record.surfaceNormal,worldObjects);
+			for (auto& light : lights)
+			{
+				light->getColor(lightContribution, record.hitPoint, record.surfaceNormal, worldObjects);
+			}
 		}
 
 		if (shouldScatter)
@@ -181,21 +196,10 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 		else
 			return (attenuation + lightContribution);
 	}
-	else if(depth==RAY_DEPTH)
-	{
-		for (auto& light : lights)
-		{
-			//errors multiple lights , object precedence
-			auto hit = light.sphere->hit(r, 0.001, global::infinity,nullptr);
-			if (hit)
-			{
-				color attenuation(0);
-				return light.col;
-			}
-		}
-	}
+	
 	//if ray did not hit any object or any light then sky
 	//sky
 	double a{ 0.5 * (glm::normalize(r.dir).y + 1.0) };
+	return color(0);
 	return ((1 - a) * glm::dvec3(1.0, 1.0, 1.0) + (a)*glm::dvec3(0.44, 0.74, 0.88));
 }

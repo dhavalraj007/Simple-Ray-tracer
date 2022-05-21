@@ -10,6 +10,7 @@ public:
 	color col;
 };
 
+//shoot scatter ray to get a next hit record ,compute the angle between scatter ray and normal at hit point assign propotional attenuation factor of reduction for the scatter ray hitting the current hitPoint. embedding that factor with current hitPoint's col
 class Diffuse :public Material
 {
 public:
@@ -19,7 +20,21 @@ public:
 	{
 		scatteredRay.orig = record.hitPoint;
 		scatteredRay.dir = record.hitPoint + (glm::dvec3)global::random_in_hemisphere(record.surfaceNormal);
-		attenuation = col;
+
+		double angle = std::acos(glm::dot(glm::normalize(scatteredRay.dir), glm::normalize(record.surfaceNormal)));
+		//std::cout << angle << std::endl;
+		if (angle > glm::radians(180.f) || angle < glm::radians(-180.f))	//normal is pointing away from light
+		{
+			return false;
+		}
+		else
+		{
+			//factor of reduction for next hitPoint's light -> float(1 - (angle / glm::radians(90.f)))
+			if (angle > 0)
+				attenuation =  col * float(1 - (angle / glm::radians(180.f)));	
+			else
+				attenuation =  col * float(1 - (angle / glm::radians(-180.f)));
+		}
 		return true;
 	}
 	
@@ -46,7 +61,7 @@ public:
 	virtual bool scatterRay(const ray& r_in, const hitRecord& record, color& attenuation, ray& scatteredRay
 	) const override
 	{
-		attenuation = col * 0.2f;
+		attenuation = col ;
 		return false;
 	}
 };

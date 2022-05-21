@@ -51,14 +51,17 @@ bool hittableList::hit(const ray& r, double t_min, double t_max, hitRecord* reco
 {
 	double closestTillNow = t_max;
 	bool hitAnything = false;
-
+	int i = 0;
 	for (auto& obj : objects)
 	{
 		if (obj->hit(r, t_min, closestTillNow, record))
 		{
+			if (i == 5)
+				__debugbreak();
 			hitAnything = true;
 			closestTillNow = record->t;
 		}
+		i++;
 	}
 
 	return hitAnything;
