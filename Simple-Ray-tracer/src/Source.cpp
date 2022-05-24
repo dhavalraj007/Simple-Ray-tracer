@@ -43,7 +43,7 @@ int main()
 	Camera camera(dpoint(0, 0, 3), 2.0, 1.0);
 	hittableList worldObjects;
 	std::vector<std::shared_ptr<LightSource>> lights;
-	std::shared_ptr<LightSource> light1 = std::make_shared<LightSource>(dpoint(-0.5, 0, 1.0), color(1, 1, 1), 0.3f, 0.3f);
+	std::shared_ptr<LightSource> light1 = std::make_shared<LightSource>(dpoint(-0.5,3-0.4, 1.0), color(1, 1, 1), .8f, 0.4f);
 	std::shared_ptr<LightSource> light2 = std::make_shared<LightSource>(dpoint(-1, 1, 1), color(1, 1, 1), 0.3f, 0.3f);
 	lights.push_back(light1);
 	worldObjects.add(light1);
@@ -142,11 +142,8 @@ void pixelJob(const Camera& camera,const hittableList& worldObjects,const std::v
 static std::vector<std::future<void>> futures;
 void MT_render(const Camera& camera, const hittableList& worldObjects, const std::vector<std::shared_ptr<LightSource>>& lights,unsigned char* image)
 {
-	
-	
 	for (int y = 0; y <global::SCR_HEIGHT; y++)
 	{
-		//std::cerr << "\rScan lines Remaining : " << y << "   " << std::flush;
 		for (int x = 0; x < global::SCR_WIDTH; x++)
 		{
 			futures.push_back(std::async(std::launch::async, pixelJob, camera, worldObjects, lights, image, x, y));
@@ -156,10 +153,8 @@ void MT_render(const Camera& camera, const hittableList& worldObjects, const std
 
 unsigned char* render(const Camera& camera, const hittableList& worldObjects, const std::vector<std::shared_ptr<LightSource>>& lights, unsigned char* image)
 {
-
 	for (int y = global::SCR_HEIGHT - 1; y >= 0; y--)
 	{
-		//std::cerr << "\rScan lines Remaining : " << y << "   " << std::flush;
 		for (int x = 0; x < global::SCR_WIDTH; x++)
 		{
 			color col(0);
@@ -174,30 +169,36 @@ unsigned char* render(const Camera& camera, const hittableList& worldObjects, co
 			global::writeColor(image, x,y, col);	//takes colors in 0...1
 		}
 	}
-	//std::cerr << "\nDone.\n" << std::flush;
-	//stbi_write_png("./image.png", global::SCR_WIDTH, global::SCR_HEIGHT, global::SCR_NC, image,global::SCR_NC * global::SCR_WIDTH);
 	return image;
 }
 
 
-//1.shoot ray if it hits the object then scatter ray get a attenuation object color shoot scatter ray get a next hit record compute the angle between scatter ray and normal at hit point assign propotional attenuation factor of reduction for the scatter ray hitting the current hitPoint.
-//2. if it is the scatter ray (depth<RAY_DEPTH) and you hit the lightSource then just return white.
 color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector<std::shared_ptr<LightSource>>& lights,int depth)
 {
 	if (depth <= 0)				//meaning theres no light from this ray
 		return color(0, 0, 0);
+	
+	//intersect ray with world
 	hitRecord record;
 	if (!worldObjects.hit(r, 0.001, global::infinity, &record))
 		return glm::vec3(0.2, 0.2, 0.8);	//sky
 	
+	//calculate direct lighting
 	color directLight(0);
 	for (auto& light : lights)
 	{
 		light->getColor(directLight, record, worldObjects);
 	}
 
-	//std::cout << directLight.r << " " << directLight.g << " " << directLight.b << std::endl;
+	//calculate indirect lighting
+	ray scatterRay;
+	bool shouldScatter = record.object->material->scatterRay(r, record,scatterRay);	
+	color indirectLight = shoot_Ray(scatterRay,worldObjects,lights,depth-1);
+
 	//surface*lighting
-	return record.object->material->col * directLight;
+	if (shouldScatter)
+		return record.object->material->col * (directLight+indirectLight);
+	else
+		return record.object->material->col * directLight;
 
 }
