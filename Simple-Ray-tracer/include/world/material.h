@@ -25,15 +25,19 @@ public:
 		//std::cout << angle << std::endl;
 		if (angle > glm::radians(180.f) || angle < glm::radians(-180.f))	//normal is pointing away from light
 		{
+			//attenuation = color(0, 1, 0);
 			return false;
 		}
 		else
 		{
 			//factor of reduction for next hitPoint's light -> float(1 - (angle / glm::radians(90.f)))
 			if (angle > 0)
-				attenuation =  col * float(1 - (angle / glm::radians(180.f)));	
+			{
+				attenuation = col * std::max(0.4f,float(1 - (angle / glm::radians(180.f))));
+				/*std::cout << "color was :" << col.r << " " << col.g << " " << col.b << " it became -> " << attenuation.r << " " << attenuation.g << " " << attenuation.b <<" factor= "<< float(1 - (angle / glm::radians(180.f))) <<" angle= "<<angle << std::endl;*/
+			}
 			else
-				attenuation =  col * float(1 - (angle / glm::radians(-180.f)));
+				attenuation =  col * std::max(0.4f,float(1 - (angle / glm::radians(-180.f))));
 		}
 		return true;
 	}

@@ -2,6 +2,7 @@
 #include<iostream>
 #include<limits>
 #include<random>
+#include<mutex>
 #include"core/window.h"
 #include"glm/vec3.hpp"
 #include"glm/glm.hpp"
@@ -25,18 +26,28 @@ namespace global {
 	inline constexpr auto SCR_NC = 3;
 	inline constexpr double infinity = std::numeric_limits<double>::infinity();
 	inline constexpr double pi = 3.1415926535897932385;
-	/// <summary>
-	///	writes color RGB to image pointer at index,index+1,index+2 also modifies index to index+3
-	/// </summary>
-	/// <param name="image"> pointer to pixel data</param>
-	/// <param name="index"> refrence to index where RGB is to be written</param>
-	/// <param name="c"> color RGB in range 0..1 </param>
-	inline void writeColor(unsigned char* const image, unsigned int& index, color& c)
+
+	static std::mutex s_imageMutex;
+
+	inline void MT_writeColor(unsigned char* const image, unsigned int x,unsigned int y, color& c)
 	{
+		auto index = (global::SCR_WIDTH * (global::SCR_HEIGHT - 1 - y) + x) * global::SCR_NC;
 		c = { std::sqrt(c.r),sqrt(c.g),sqrt(c.b) };
-		image[index++] = static_cast<int>(255.99 * std::clamp(c.r, 0.0f, 0.999f));
-		image[index++] = static_cast<int>(255.99 * std::clamp(c.g, 0.0f, 0.999f));
-		image[index++] = static_cast<int>(255.99 * std::clamp(c.b, 0.0f, 0.999f));
+		std::lock_guard<std::mutex> lock(s_imageMutex);
+		
+		image[index] = static_cast<int>(255.99 * std::clamp(c.r, 0.0f, 0.999f));
+		image[index+1] = static_cast<int>(255.99 * std::clamp(c.g, 0.0f, 0.999f));
+		image[index+2] = static_cast<int>(255.99 * std::clamp(c.b, 0.0f, 0.999f));
+	}
+
+	inline void writeColor(unsigned char* const image, unsigned int x, unsigned int y, color& c)
+	{
+		auto index = (global::SCR_WIDTH * (global::SCR_HEIGHT - 1 - y) + x) * global::SCR_NC;
+		c = { std::sqrt(c.r),sqrt(c.g),sqrt(c.b) };
+
+		image[index] = static_cast<int>(255.99 * std::clamp(c.r, 0.0f, 0.999f));
+		image[index + 1] = static_cast<int>(255.99 * std::clamp(c.g, 0.0f, 0.999f));
+		image[index + 2] = static_cast<int>(255.99 * std::clamp(c.b, 0.0f, 0.999f));
 	}
 
 	inline void log(const char* msg)

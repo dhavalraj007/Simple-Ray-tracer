@@ -8,9 +8,11 @@ class Sphere:public hittable {
 public:
 	dpoint center;
 	double radius;
-	std::shared_ptr<Material> material;
+	
 	Sphere() = default;
-	Sphere(dpoint cen,double radii,std::shared_ptr<Material> mat):center(cen),radius(radii),material(mat){}
+	Sphere(dpoint cen,double radii,std::shared_ptr<Material> mat):center(cen),radius(radii){
+		hittable::material = mat;
+	}
 	
 	virtual bool hit(const ray& r, double t_min, double t_max, hitRecord* record) const override;
 };
@@ -49,7 +51,6 @@ bool Sphere::hit(const ray& r, double t_min, double t_max, hitRecord* record) co
 		record->hitPoint = r.at(t);
 		record->surfaceNormal = (record->hitPoint - center) / radius;
 		record->t = t;
-		record->material = material;
 		record->set_face_normal(r);
 	}
 	return true;

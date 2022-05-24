@@ -12,30 +12,24 @@ public:
 	{
 	}
 
-	void getColor(color& lightContribution,const dpoint& p,const glm::dvec3& normalAtp,const hittableList& worldObjects) const
+	void getColor(color& lightContribution,const hitRecord& record,const hittableList& worldObjects) const
 	{
-		ray r(p, LightSource::center - p);	//shadow ray
-		for (auto& object : worldObjects.objects)	//if shadow ray hits any objects in b/w p and light return black;
+		if (dynamic_cast<LightSource*>(record.object.get()) == this)	//if calculating light to yourself
 		{
-			if (dynamic_cast<LightSource*>(object.get()))
-				continue;
-			if (object->hit(r, 0.001, 1,nullptr))
-				return;
-		}
-		// else calculate lambert light
-
-		double angle = std::acos(glm::dot(glm::normalize(LightSource::center - p), glm::normalize(normalAtp)));
-		//std::cout << angle << std::endl;
-		if (angle > glm::radians(90.f) || angle < glm::radians(-90.f))	//normal is pointing away from light
-		{
+			lightContribution = col;
 			return;
 		}
-		else
+
+		hitRecord shadowerObjRec;
+		ray r(record.hitPoint, LightSource::center - record.hitPoint);	//shadow ray
+		if (worldObjects.hit(r, 0.001, 1, &shadowerObjRec))//if shadow ray hits any objects in b/w hitPoint and light 
 		{
-			if (angle > 0)
-				lightContribution += intensity * col * float(1 - (angle / glm::radians(90.f)));
-			else
-				lightContribution += intensity * col * float(1 - (angle / glm::radians(-90.f)));
+			if (shadowerObjRec.object.get() != this)	// and that obj is not lightSOurce itself
+				return;							//	return black;
 		}
+
+		// else calculate lambert light
+		double fact = std::max(glm::dot(glm::normalize(r.dir), glm::normalize(record.surfaceNormal)),0.0);
+		lightContribution += intensity * col * float(fact);
 	}
 };

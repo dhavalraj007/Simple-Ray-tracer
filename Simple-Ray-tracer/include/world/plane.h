@@ -9,9 +9,10 @@ class Plane :public hittable {
 public:
 	dpoint p;
 	glm::dvec3 normal;
-	std::shared_ptr<Material> material;
 	Plane() = default;
-	Plane(dpoint _p, const glm::vec3& _normal, std::shared_ptr<Material> mat) :p(_p), normal(_normal), material(mat) {}
+	Plane(dpoint _p, const glm::vec3& _normal, std::shared_ptr<Material> mat) :p(_p), normal(_normal)  {
+		hittable::material = mat;
+	}
 
 	virtual bool hit(const ray& r, double t_min, double t_max, hitRecord* record) const override;
 };
@@ -28,7 +29,6 @@ bool Plane::hit(const ray& r, double t_min, double t_max, hitRecord* record) con
 	{
 		record->t = t;
 		record->hitPoint = r.at(t);
-		record->material = material;
 		record->surfaceNormal = normal;
 		record->set_face_normal(r);
 	}

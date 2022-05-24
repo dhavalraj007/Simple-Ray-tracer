@@ -6,19 +6,26 @@
 #include"ray.h"
 
 class Material;
+struct hitRecord;
+class hittable {
+public:
+	std::shared_ptr<Material> material;
+	virtual bool hit(const ray& r, double t_min, double t_max, hitRecord* record) const = 0;
+};
+
 struct hitRecord {
 	dpoint hitPoint{};
 	glm::dvec3 surfaceNormal{};	//normalized
 	double t{};
 	bool frontFace = true;
-	std::shared_ptr<Material> material;
+	std::shared_ptr<hittable> object;
 	hitRecord() = default;
 	hitRecord(dpoint _hitPoint, glm::dvec3 _surfaceNormal, double _t) :hitPoint(_hitPoint), surfaceNormal(_surfaceNormal), t(_t) {}
-	hitRecord(const ray& r, dpoint _hitPoint, glm::dvec3 _surfaceNormal, double _t, std::shared_ptr<Material> _material)
+	hitRecord(const ray& r, dpoint _hitPoint, glm::dvec3 _surfaceNormal, double _t, std::shared_ptr<hittable> _obj)
 		:hitPoint(_hitPoint)
 		, surfaceNormal(_surfaceNormal)
 		, t(_t)
-		, material(_material)
+		, object(_obj)
 	{
 		set_face_normal(r);
 	}
@@ -30,10 +37,6 @@ struct hitRecord {
 	}
 };
 
-class hittable {
-public:
-	virtual bool hit(const ray& r, double t_min, double t_max,hitRecord* record) const = 0;
-};
 
 class hittableList :public hittable {
 public:
@@ -56,8 +59,9 @@ bool hittableList::hit(const ray& r, double t_min, double t_max, hitRecord* reco
 	{
 		if (obj->hit(r, t_min, closestTillNow, record))
 		{
-			if (i == 5)
-				__debugbreak();
+			if (i == 0)
+				;//__debugbreak();
+			record->object = obj;
 			hitAnything = true;
 			closestTillNow = record->t;
 		}
