@@ -31,16 +31,16 @@ int RAY_DEPTH = 10;
 int SPP = 2;
 
 //TODO
+// when camera is inside the dielectric black acne at the center of sphere behind it
 // Bounding plane
 // why white plane doesnt work
-// light drawing corrections
 
 int main()
 {
 	core::Window window;
 	window.create(global::props);
 	
-	Camera camera(dpoint(0, 0, 3), 2.0, 1.0);
+	Camera camera(dpoint(-1.5, 0.0, -1.0), 2.0, 1.0);
 	hittableList worldObjects;
 	std::vector<std::shared_ptr<LightSource>> lights;
 	std::shared_ptr<LightSource> light1 = std::make_shared<LightSource>(dpoint(-0.5,3-0.4, 1.0), color(1, 1, 1), .8f, 0.4f);
@@ -49,28 +49,30 @@ int main()
 	worldObjects.add(light1);
 	glm::vec3 lightPos=light1->center;
 
-	auto material_ground = std::make_shared<Diffuse>(color(0.8, 0.8, 0.0));
-	auto metalMaterial = std::make_shared<Metal>(color(0.8, 0.8, 0.8));
-	auto diffuseMaterialRed = std::make_shared<Diffuse>(color(0.7, 0.3, 0.3));
-	auto diffuseMaterialBlue = std::make_shared<Diffuse>(color(0.3, 0.3, 0.7));
-	auto diffuseMaterialWhite = std::make_shared<Diffuse>(color(1, 1, 1));
+	auto material_ground = std::make_shared<Diffuse>(color(0.8, 0.8, 0.0),0.0);
+	auto metalMaterial = std::make_shared<Metal>(color(0.8, 0.8, 0.8), 0.0);
+	auto diffuseMaterialRed = std::make_shared<Diffuse>(color(0.7, 0.3, 0.3), 0.0);
+	auto diffuseMaterialBlue = std::make_shared<Diffuse>(color(0.3, 0.3, 0.7), 0.0);
+	auto diffuseMaterialWhite = std::make_shared<Diffuse>(color(1, 1, 1), 0.0);
+	auto dielectricMaterial = std::make_shared<Dielectric>(color(1, 1, 1),1.3);
 
-	//worldObjects.add(std::make_shared<Sphere>(point(0.0, -100.5, -1.0), 100.0, material_ground));
+	worldObjects.add(std::make_shared<Sphere>(point(0.0, -100.5, -1.0), 100.0, material_ground));
+	worldObjects.add(std::make_shared<Sphere>(point(-1.5, 0.0, -1.0), 0.5, dielectricMaterial));
+	worldObjects.add(std::make_shared<Sphere>(point(-1.5, 0.0,-2.0), 0.5, diffuseMaterialRed));
 	worldObjects.add(std::make_shared<Sphere>(point(0.5, 0.0, -1.0), 0.5, metalMaterial));
-	worldObjects.add(std::make_shared<Sphere>(point(-0.5, 0.0, -1.0), 0.5, diffuseMaterialRed));
 	
 	//auto planeFront=std::make_shared<Plane>(point(0.0, 0.0, +3.0), glm::dvec3(0.0, 0.0, -1.0), diffuseMaterialWhite);
-	auto planeBack=std::make_shared<Plane>(point(0.0, 0.0, -3.0), glm::dvec3(0.0, 0.0, 1.0), diffuseMaterialWhite);
+	auto planeBack=std::make_shared<Plane>(point(0.0, 0.0, -3.0), glm::dvec3(0.0, 0.0, 1.0), diffuseMaterialRed);
 	auto planeUp = std::make_shared<Plane>(point(0.0, 3.0, 0.0), glm::dvec3(0.0, -1.0, 0.0), diffuseMaterialWhite);
 	auto planeGround = std::make_shared<Plane>(point(0.0, -0.5, 0.0), glm::dvec3(0.0, 1.0, 0.0), diffuseMaterialWhite);
 	auto planeRight =std::make_shared<Plane>(point(3.0, 0.0, 0.0), glm::dvec3(-1.0, 0.0, 0.0), diffuseMaterialRed);
 	auto planeLeft=std::make_shared<Plane>(point(-3.0, 0.0, 0.0), glm::dvec3(1.0, 0.0, 0.0), diffuseMaterialBlue);
 	//worldObjects.add(plane1);
-	worldObjects.add(planeBack);
-	worldObjects.add(planeUp);
-	worldObjects.add(planeGround);
-	worldObjects.add(planeLeft);
-	worldObjects.add(planeRight);
+	//worldObjects.add(planeBack);
+	//worldObjects.add(planeUp);
+	//worldObjects.add(planeGround);
+	//worldObjects.add(planeLeft);
+	//worldObjects.add(planeRight);
 
 	//worldObjects.add(groundPlane);
 
@@ -157,6 +159,8 @@ unsigned char* render(const Camera& camera, const hittableList& worldObjects, co
 	{
 		for (int x = 0; x < global::SCR_WIDTH; x++)
 		{
+			if (x == 568 && y == 351)
+				;// __debugbreak();
 			color col(0);
 			for (int s = 0; s < SPP; s++)
 			{
@@ -181,7 +185,11 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 	//intersect ray with world
 	hitRecord record;
 	if (!worldObjects.hit(r, 0.001, global::infinity, &record))
-		return glm::vec3(0.2, 0.2, 0.8);	//sky
+	{	
+		//sky
+		float a = glm::normalize(r.dir).y;
+		return (1-a)*color(1,1,1)+ a* color(0.2, 0.2, 0.8);	
+	}
 	
 	//calculate direct lighting
 	color directLight(0);
@@ -191,14 +199,23 @@ color shoot_Ray(const ray& r, const hittableList& worldObjects,const std::vector
 	}
 
 	//calculate indirect lighting
-	ray scatterRay;
-	bool shouldScatter = record.object->material->scatterRay(r, record,scatterRay);	
-	color indirectLight = shoot_Ray(scatterRay,worldObjects,lights,depth-1);
+	color indirectLight(0);
+	ray *reflectedRay = nullptr, *refractedRay = nullptr;
+	record.object->material->scatterRay(r, record,reflectedRay,refractedRay);
+	double ref=1.0;
+	if(record.frontFace)
+		ref= reflectance(r.dir, record.surfaceNormal,1.0/record.object->material->refractiveIndex);
+	else
+		ref= reflectance(r.dir, record.surfaceNormal,record.object->material->refractiveIndex);
+
+
+	if(reflectedRay)
+		indirectLight += float(ref)*shoot_Ray(*reflectedRay,worldObjects,lights,depth-1);
+	if(refractedRay && refractedRay->dir!=glm::dvec3(0.0))		// refracted ray is set to zero in case of TIR
+		indirectLight += float(1.0-ref) *shoot_Ray(*refractedRay, worldObjects, lights, depth - 1);
+
 
 	//surface*lighting
-	if (shouldScatter)
-		return record.object->material->col * (directLight+indirectLight);
-	else
-		return record.object->material->col * directLight;
-
+	auto ret = record.object->material->col * (directLight + indirectLight);
+	return ret;
 }

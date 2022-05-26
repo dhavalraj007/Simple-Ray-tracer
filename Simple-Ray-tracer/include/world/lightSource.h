@@ -8,7 +8,7 @@ public:
 	float intensity = 1.f;
 	LightSource() = default;
 	LightSource(dpoint pos, color c, float i,float radii)
-		:intensity(i),col(c),Sphere(pos,radii,std::make_shared<Light>(c))
+		:intensity(i),col(c),Sphere(pos,radii,std::make_shared<Light>(c,0.0))
 	{
 	}
 

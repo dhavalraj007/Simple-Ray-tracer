@@ -33,6 +33,8 @@ bool Sphere::hit(const ray& r, double t_min, double t_max, hitRecord* record) co
 	double c = dot(oc, oc) - radius * radius;
 	double D = half_b * half_b - a * c;
 
+	if (a < 1e-6)
+		__debugbreak();
 	if (D < 0)			//no hit
 		return false;
 	
@@ -50,6 +52,9 @@ bool Sphere::hit(const ray& r, double t_min, double t_max, hitRecord* record) co
 	{
 		record->hitPoint = r.at(t);
 		record->surfaceNormal = (record->hitPoint - center) / radius;
+		if (isnan(record->surfaceNormal.x))
+			__debugbreak();
+
 		record->t = t;
 		record->set_face_normal(r);
 	}
