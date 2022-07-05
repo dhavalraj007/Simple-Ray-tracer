@@ -1,0 +1,12 @@
+semester proj
+materials + ss
+
+infinite plane + ss
+optimizations
+
+lighting mechanism refactor
+basic direct lighting with point light + ss
+indirect lighting + ss
+
+refraction + ss
+multithread

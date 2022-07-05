@@ -33,11 +33,11 @@ bool Sphere::hit(const ray& r, double t_min, double t_max, hitRecord* record) co
 	double c = dot(oc, oc) - radius * radius;
 	double D = half_b * half_b - a * c;
 
-	if (a < 1e-6)
-		__debugbreak();
+
 	if (D < 0)			//no hit
 		return false;
-	
+	/*if (a < 1e-6)
+		__debugbreak();*/
 	double t1 = (-half_b - sqrt(D)) / a;	// front hit point 
 	double t2 = (-half_b + sqrt(D)) / a;	// back hit point
 	double t = t1;

@@ -31,10 +31,11 @@ namespace global {
 
 	inline void MT_writeColor(unsigned char* const image, unsigned int x,unsigned int y, color& c)
 	{
-		auto index = (global::SCR_WIDTH * (global::SCR_HEIGHT - 1 - y) + x) * global::SCR_NC;
+		
+		//std::cout << index << std::endl;
 		c = { std::sqrt(c.r),sqrt(c.g),sqrt(c.b) };
 		std::lock_guard<std::mutex> lock(s_imageMutex);
-		
+		auto index = (global::SCR_WIDTH * (global::SCR_HEIGHT - 1 - y) + x) * global::SCR_NC;
 		image[index] = static_cast<int>(255.99 * std::clamp(c.r, 0.0f, 0.999f));
 		image[index+1] = static_cast<int>(255.99 * std::clamp(c.g, 0.0f, 0.999f));
 		image[index+2] = static_cast<int>(255.99 * std::clamp(c.b, 0.0f, 0.999f));
@@ -94,6 +95,14 @@ namespace global {
 			return in_unit_sphere;
 		else
 			return -in_unit_sphere;
+	}
+
+	inline glm::dvec3 random_in_unit_disk() {
+		while (true) {
+			auto p = glm::dvec3(random_double(-1, 1), random_double(-1, 1), 0);
+			if (glm::length(p)* glm::length(p) >= 1) continue;
+			return p;
+		}
 	}
 	struct Image {
 		unsigned char* data = nullptr;
